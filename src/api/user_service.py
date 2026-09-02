@@ -1,37 +1,13 @@
-from dotenv import load_dotenv
-import os
-
 from sqlalchemy.orm import Session
-
-from pwdlib import PasswordHash
 from api.schema.user_schema import UserSignUp, UserLogin, AcessToken
-from datetime import datetime, timedelta, timezone
+
+from fastapi import status, HTTPException
+
 from api.config.models.user import User
-import jwt
+from api.utils.jwt_util import create_access_token
+from api.utils.bcrypt import hash_password, verify_password
 
-load_dotenv()
-secret_key = os.getenv("JWT_SECRET_KEY")
-algorithm = os.getenv("JWT_ALGORITHM")
-
-password_hash = PasswordHash.recommended()
-
-def hash_password(password:str) -> str:
-    return password_hash.hash(password)
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    return password_hash.verify(password, hashed_password)
-
-def create_access_token(user_id: str) -> str:
-    expires = datetime.now(timezone.utc) + timedelta(minutes = 30)
-
-    payload = {
-        "sub": user_id,
-        "exp": expires
-    }
-
-    return jwt.encode(payload, secret_key, algorithm = algorithm)
-
-def handleSignUp(
+def handles_signUp(
         data: UserSignUp,
         db: Session
     ) -> str:
@@ -52,3 +28,18 @@ def handleSignUp(
     except Exception as e:
         db.rollback()
         raise e
+
+def handle_login(
+        credenetials: UserLogin,
+        db: Session
+):
+    response = db.query(User).filter(User.email == credenetials.email).first()
+    # print(response.password_hashed)
+    if verify_password(credenetials.password, response.password_hashed):
+        return create_access_token(str(response.id))
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
