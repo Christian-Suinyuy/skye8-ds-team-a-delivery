@@ -2,10 +2,8 @@ from dotenv import load_dotenv
 import os
 
 from sqlalchemy.orm import Session
-from fastapi import Depends
 
 from pwdlib import PasswordHash
-from api.config.database import get_db
 from api.schema.user_schema import UserSignUp, UserLogin, AcessToken
 from datetime import datetime, timedelta, timezone
 from api.config.models.user import User
@@ -35,10 +33,13 @@ def create_access_token(user_id: str) -> str:
 
 def handleSignUp(
         data: UserSignUp,
-        db: Session = Depends(get_db)
+        db: Session
     ) -> str:
     hashed_password = hash_password(data.password)
     try:
+        duplicate = db.query(User).filter(User.email == data.email).first()
+        if duplicate:
+            return "User with this email already exists"
         user = User(
             email=data.email,
             password_hashed=hashed_password
