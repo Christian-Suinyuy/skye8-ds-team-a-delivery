@@ -13,3 +13,9 @@ uv sync
 ```bash
 uv add package_name
 ```
+
+```bash
+uv run dev
+```
+
+

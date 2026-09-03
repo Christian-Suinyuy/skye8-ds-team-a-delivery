@@ -7,7 +7,17 @@ authors = [
     { name = "BCS", email = "christiansuinyuy@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi>=0.141.1",
+    "pandas>=3.0.5",
+    "psycopg2>=2.9.12",
+    "psycopg[binary]>=3.3.4",
+    "pwdlib[argon2]>=0.3.1",
+    "pydantic[email]>=2.13.5",
+    "pyjwt>=2.13.0",
+    "sqlalchemy>=2.0.52",
+    "uvicorn[standard]>=0.52.4",
+]
 
 [project.scripts]
 dev = "api:main"

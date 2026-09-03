@@ -7,6 +7,7 @@ venv/
 env/
 .env.*
 data/
+.env
 
 *.csv
 *.xlsx
