@@ -9,3 +9,7 @@ mlruns/
 mlartifacts/
 .env
 *.pyc
+
+*.csv
+*.xlsx
+*.xls
