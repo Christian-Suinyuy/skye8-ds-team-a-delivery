@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-
 from src.data.clean import (
     CleaningError,
     clean_borrowers,

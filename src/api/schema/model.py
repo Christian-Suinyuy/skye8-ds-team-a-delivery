@@ -39,8 +39,3 @@ class PredictionResponse(BaseModel):
 
 class BatchPredictionResponse(BaseModel):
     predictions: list[PredictionResponse]
-
-
-
-
- 

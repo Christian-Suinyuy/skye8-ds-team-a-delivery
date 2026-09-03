@@ -1,10 +1,9 @@
 from io import StringIO
 
+import mlflow
+import mlflow.sklearn
 import pandas as pd
 from fastapi import status
-import mlflow
-import sklearn
-import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 
 from api.schema.model import (
@@ -34,11 +33,11 @@ def get_prediction(features: PredictionRequest) -> PredictionResponse:
     response = model.predict_proba(df)
     probability = float(response[0, 1])
     return PredictionResponse(
-      probability_of_default=probability,
-      decision="review" if probability < 0.5 else "decline",
-      model_version=str(model_version.version),
-      model_stage=model_version.current_stage,
-      model_name=MODEL_NAME,
+        probability_of_default=probability,
+        decision="review" if probability < 0.5 else "decline",
+        model_version=str(model_version.version),
+        model_stage=model_version.current_stage,
+        model_name=MODEL_NAME,
     )
 
 
@@ -90,7 +89,3 @@ def predict_batch_csv(contents: bytes, content_type: str | None) -> BatchPredict
         raise BatchPredictionError(validation_errors)
 
     return BatchPredictionResponse(predictions=get_batch_predictions(features))
-
-
-
-
