@@ -26,13 +26,13 @@ jobs:
         run: uv sync --locked --extra dev --python 3.11
 
       - name: Ruff (lint)
-        run: uv run ruff check src/ tests/
+        run: uv run --locked --extra dev ruff check src/ tests/
 
       - name: Black (format check)
-        run: uv run black --check src/ tests/
+        run: uv run --locked --extra dev black --check src/ tests/
 
       - name: Mypy (type check)
-        run: uv run mypy src/
+        run: uv run --locked --extra dev mypy src/
 
       - name: Pytest
-        run: uv run pytest tests/ -v
+        run: uv run --locked --extra dev pytest tests/ -v

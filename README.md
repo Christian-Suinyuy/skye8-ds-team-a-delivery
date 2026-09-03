@@ -1,4 +1,7 @@
 # skye8-ds-team-a-delivery
+
+[![CI](https://github.com/Christian-Suinyuy/skye8-ds-team-a-delivery/actions/workflows/ci.yml/badge.svg?branch=backend)](https://github.com/Christian-Suinyuy/skye8-ds-team-a-delivery/actions/workflows/ci.yml)
+
 End-to-end ML platform for credit risk prediction, model serving, deployment, and production monitoring.
 
 ## Development Setup
