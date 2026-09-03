@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
 import jwt
 import dotenv
+
 import os
 
 dotenv.load_dotenv()
@@ -21,7 +22,7 @@ def get_current_user(
     try:
         payload = jwt.decode(
             token,
-            secret_key,
+            secret_key if secret_key else "",
             algorithms=[algorithm if algorithm else ""]
         )
 

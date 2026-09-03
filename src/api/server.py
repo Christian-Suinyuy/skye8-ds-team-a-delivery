@@ -2,11 +2,14 @@ from fastapi import FastAPI, Depends, Security
 from fastapi.security import APIKeyHeader
 from sqlalchemy.orm import Session
 from api.schema.user_schema import UserSignUp, UserLogin
+from api.schema.model import PredictionRequest, PredictionResponse
 from api.services.user_service import handles_signUp, handle_login
 from api.config.database import get_db
 from api.utils.load_models import load_models
 from api.middleware.middleware import request_logger
 from api.middleware.auth import get_current_user
+
+from api.services.model_service import get_prediction as model_prediction
 
 app = FastAPI()
 
@@ -40,9 +43,8 @@ def login(
 def health():
     return {"message": "server is runnig. Everything is Good"}
 
-
 @app.post("/api/v1/predict", dependencies= [
     Depends(get_current_user)
 ])
-def get_prediction(features):
-    return 
+def get_prediction(features: PredictionRequest) -> PredictionResponse:
+    return model_prediction(features)
