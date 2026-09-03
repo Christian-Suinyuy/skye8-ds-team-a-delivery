@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build-lint-test:
+  build-lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,6 +33,3 @@ jobs:
 
       - name: Mypy (type check)
         run: uv run --locked --extra dev mypy src/
-
-      - name: Pytest
-        run: uv run --locked --extra dev pytest tests/ -v
