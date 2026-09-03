@@ -1,0 +1,25 @@
+experiment_name: "skye8-credit-risk"
+run_name: "gradient-boosting-sample-weighted"
+model_registry_name: "skye8-credit-risk-model"
+
+data:
+  train_path: "data/raw/loans_train.csv"
+  borrowers_path: "data/raw/borrowers.csv"
+  branches_path: "data/raw/branches.csv"
+
+split:
+  holdout_fraction: 0.2
+  random_state: 42
+  stratify: true
+
+model:
+  type: "gradient_boosting"
+  params:
+    max_iter: 200
+    max_depth: 4
+    learning_rate: 0.05
+    # HistGradientBoostingClassifier has no class_weight param;
+    # imbalance is handled via sample_weight in train.py instead.
+    use_sample_weight: true
+
+random_state: 42
