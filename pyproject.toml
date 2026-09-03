@@ -13,6 +13,7 @@ dependencies = [
     "psycopg[binary]>=3.3.4",
     "pwdlib[argon2]>=0.3.1",
     "pydantic[email]>=2.13.5",
+    "python-multipart>=0.0.20",
     "pyjwt>=2.13.0",
     "sqlalchemy>=2.0.52",
     "uvicorn[standard]>=0.52.4",
@@ -25,6 +26,7 @@ dev = [
     "ruff>=0.4",
     "black>=24.0",
     "mypy>=1.9",
+    "pre-commit>=3.7",
 ]
 
 [project.scripts]

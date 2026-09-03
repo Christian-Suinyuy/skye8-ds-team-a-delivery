@@ -1,24 +1,33 @@
+from io import StringIO
+
 import pandas as pd
-from api.schema.model import PredictionRequest, PredictionResponse
+from fastapi import status
 import mlflow
 import sklearn
 import mlflow.sklearn
+from mlflow.tracking import MlflowClient
 
-# from mlflow import MlflowClient
+from api.schema.model import (
+    BatchPredictionResponse,
+    PredictionRequest,
+    PredictionResponse,
+)
 
-# client = MlflowClient()
+MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
+MODEL_NAME = "skye8-credit-risk-model"
 
-# model_versions = client.get_latest_versions(
-#     "LoanDefaultModel",
-#     stages=["Production"]
-# )
-
-# version = model_versions[0].version
-# stage = model_versions[0].current_stage
-
-
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+client = MlflowClient()
+model_version = client.get_model_version_by_alias(MODEL_NAME, "production")
 model = mlflow.sklearn.load_model("mlruns/1/models/m-777ba5a7a77e420d9aa99cb2a75ce742/artifacts")
+
+
+class BatchPredictionError(Exception):
+    def __init__(self, detail: object, status_code: int = status.HTTP_422_UNPROCESSABLE_CONTENT):
+        self.detail = detail
+        self.status_code = status_code
+        super().__init__(str(detail))
+
 
 def get_prediction(features: PredictionRequest) -> PredictionResponse:
     df = pd.DataFrame([features.model_dump()])
@@ -27,10 +36,60 @@ def get_prediction(features: PredictionRequest) -> PredictionResponse:
     return PredictionResponse(
       probability_of_default=probability,
       decision="review" if probability < 0.5 else "decline",
-      model_version="version",
-    #   model_stage=stage,
-      model_name="skye8-credit-risk-model"
+      model_version=str(model_version.version),
+      model_stage=model_version.current_stage,
+      model_name=MODEL_NAME,
     )
+
+
+def get_batch_predictions(features: list[PredictionRequest]) -> list[PredictionResponse]:
+    df = pd.DataFrame([feature.model_dump() for feature in features])
+    probabilities = model.predict_proba(df)[:, 1]
+
+    return [
+        PredictionResponse(
+            probability_of_default=float(probability),
+            decision="review" if probability < 0.5 else "decline",
+            model_version=str(model_version.version),
+            model_stage=model_version.current_stage,
+            model_name=MODEL_NAME,
+        )
+        for probability in probabilities
+    ]
+
+
+def predict_batch_csv(contents: bytes, content_type: str | None) -> BatchPredictionResponse:
+    if content_type not in {"text/csv", "application/csv", None}:
+        raise BatchPredictionError(
+            "file must be a CSV",
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        )
+
+    try:
+        frame = pd.read_csv(StringIO(contents.decode("utf-8-sig")))
+    except (UnicodeDecodeError, pd.errors.EmptyDataError, pd.errors.ParserError) as error:
+        raise BatchPredictionError(f"invalid CSV file: {error}") from error
+
+    if frame.empty:
+        raise BatchPredictionError("file must contain at least one data row")
+
+    required_fields = set(PredictionRequest.model_fields)
+    missing_fields = sorted(required_fields - set(frame.columns))
+    if missing_fields:
+        raise BatchPredictionError({"missing_fields": missing_fields})
+
+    features = []
+    validation_errors = []
+    for row_number, record in enumerate(frame.to_dict(orient="records"), start=2):
+        try:
+            features.append(PredictionRequest.model_validate(record))
+        except ValueError as error:
+            validation_errors.append({"row": row_number, "errors": error.errors()})
+
+    if validation_errors:
+        raise BatchPredictionError(validation_errors)
+
+    return BatchPredictionResponse(predictions=get_batch_predictions(features))
 
 
 

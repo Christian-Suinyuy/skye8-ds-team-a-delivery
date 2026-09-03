@@ -34,7 +34,11 @@ class PredictionResponse(BaseModel):
     decision: str
     model_version: str
     model_name: str
-    # model_stage: str | None
+    model_stage: str
+
+
+class BatchPredictionResponse(BaseModel):
+    predictions: list[PredictionResponse]
 
 
 

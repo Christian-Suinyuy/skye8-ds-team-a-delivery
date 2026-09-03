@@ -13,23 +13,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.11"
-          cache: "pip"
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
 
       - name: Install package
-        run: pip install -e ".[dev]"
+        run: uv sync --locked --extra dev --python 3.11
 
       - name: Ruff (lint)
-        run: ruff check src/ tests/
+        run: uv run ruff check src/ tests/
 
       - name: Black (format check)
-        run: black --check src/ tests/
+        run: uv run black --check src/ tests/
 
       - name: Mypy (type check)
-        run: mypy src/
+        run: uv run mypy src/
 
       - name: Pytest
-        run: pytest tests/ -v
+        run: uv run pytest tests/ -v
