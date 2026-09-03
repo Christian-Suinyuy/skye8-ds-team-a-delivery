@@ -6,7 +6,7 @@ from api.services.user_service import handles_signUp, handle_login
 from api.config.database import get_db
 from api.utils.load_models import load_models
 from api.middleware.middleware import request_logger
-from api.middleware.auth import auth_middleware
+from api.middleware.auth import get_current_user
 
 app = FastAPI()
 
@@ -35,9 +35,14 @@ def login(
     return {"access_token": token, "token_type": "bearer"}
 
 @app.get("/", dependencies = [
-    Depends(auth_middleware)
+    Depends(get_current_user)
 ])
 def health():
     return {"message": "server is runnig. Everything is Good"}
 
-    
+
+@app.post("/api/v1/predict", dependencies= [
+    Depends(get_current_user)
+])
+def get_prediction(features):
+    return 

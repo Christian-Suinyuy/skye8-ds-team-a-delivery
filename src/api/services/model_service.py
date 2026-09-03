@@ -1,4 +1,6 @@
 import pandas as pd
 
-def makePrediction(data: dict):
-    df = pd.DataFrame(data)
+def version1(features: dict) -> dict:
+    df = pd.DataFrame(features)
+
+    return {}
