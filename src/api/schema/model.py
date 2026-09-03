@@ -1,11 +1,13 @@
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class PredictionRequest(BaseModel):
     amount_xaf: float
-    term_months: int
+    term_months: int = Field(ge=3, le=24)
     monthly_rate_pct: float
-    declared_income_xaf: float
+    declared_income_xaf: float = Field(gt=0)
     loan_to_income_ratio: float
     age: int
     household_size: int
@@ -13,7 +15,12 @@ class PredictionRequest(BaseModel):
     prior_loans: int
     branch_age_years: int
     staff_count: int
-    product: str
+    product: Literal[
+        "asset finance",
+        "group solidarity",
+        "individual micro",
+        "working capital",
+    ]
     channel: str
     collateral: str
     sex: str
@@ -27,6 +34,7 @@ class PredictionResponse(BaseModel):
     decision: str
     model_version: str
     model_name: str
+    # model_stage: str | None
 
 
 
