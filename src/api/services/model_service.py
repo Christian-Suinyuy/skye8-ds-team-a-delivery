@@ -5,6 +5,7 @@ import mlflow.sklearn
 import pandas as pd
 from fastapi import status
 from mlflow.tracking import MlflowClient
+from pydantic import ValidationError
 
 from api.schema.model import (
     BatchPredictionResponse,
@@ -82,7 +83,7 @@ def predict_batch_csv(contents: bytes, content_type: str | None) -> BatchPredict
     for row_number, record in enumerate(frame.to_dict(orient="records"), start=2):
         try:
             features.append(PredictionRequest.model_validate(record))
-        except ValueError as error:
+        except ValidationError as error:
             validation_errors.append({"row": row_number, "errors": error.errors()})
 
     if validation_errors:
