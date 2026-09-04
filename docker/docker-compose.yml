@@ -1,9 +1,25 @@
 services:
   api:
-   build:
-     context: ..
-     dockerfile: docker/dockerfile
-     ports:
-       - "8000:8000"
-     environment:
-       PYTHONUNBUFFERED: "1"
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      DATABASE_STRING: postgresql+psycopg://postgres:postgres@db:5432/skye8
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: skye8
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d skye8"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
