@@ -15,6 +15,7 @@ from api.services.model_service import (
 )
 from api.services.user_service import handle_login, handles_signUp
 from api.utils.load_models import load_models
+from api.utils.model_registry import get_loaded_model_details
 
 app = FastAPI()
 
@@ -38,7 +39,10 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):  # noqa: B008
 
 @app.get("/", dependencies=[Depends(get_current_user)])
 def health():
-    return {"message": "server is runnig. Everything is Good"}
+    return {
+        "message": "server is running. Everything is Good",
+        "model": get_loaded_model_details(),
+    }
 
 
 @app.post("/api/v1/predict", dependencies=[Depends(get_current_user)])
@@ -50,8 +54,9 @@ def get_prediction(features: PredictionRequest) -> PredictionResponse:
 async def predict_batch(
     file: UploadFile = File(...),  # noqa: B008
     _: str = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
 ) -> BatchPredictionResponse:
     try:
-        return predict_batch_csv(await file.read(), file.content_type)
+        return predict_batch_csv(await file.read(), file.content_type, db)
     except BatchPredictionError as error:
         raise HTTPException(status_code=error.status_code, detail=error.detail) from error

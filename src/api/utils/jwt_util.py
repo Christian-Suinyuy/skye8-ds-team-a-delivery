@@ -13,7 +13,7 @@ def create_access_token(user_id: str) -> str:
     if not secret_key or not algorithm:
         raise RuntimeError("JWT_SECRET_KEY and JWT_ALGORITHM must be configured")
 
-    expires = datetime.now(UTC) + timedelta(minutes=30)
+    expires = datetime.now(UTC) + timedelta(days=1)
 
     payload = {"sub": user_id, "exp": expires}
 
