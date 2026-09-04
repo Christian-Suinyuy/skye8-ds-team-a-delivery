@@ -40,14 +40,20 @@ The startup loader reads `data/raw/branches.csv` and
 existing branch and borrower IDs are skipped. `loans_train.csv` and
 `loans_live.csv` are not loaded into the database during API startup.
 
-### start the fast api server
+### Start the FastAPI server
 ```bash
 uv run dev
 ```
 
-## sample predict request body
- POst /predict
-```bsh
+The server listens on `http://127.0.0.1:8005` and provides interactive API
+documentation at `http://127.0.0.1:8005/docs`.
+
+## Single prediction
+
+`POST /api/v1/predict` requires a bearer token and a JSON body containing the
+18 model features:
+
+```json
 {
   "amount_xaf": 250000,
   "term_months": 12,
@@ -70,15 +76,33 @@ uv run dev
 }
 ```
 
+The response includes the probability, decision, model version, and MLflow
+stage. Every response also includes an `X-Request-ID` header. The server logs
+that ID with the UTC timestamp, status code, and request duration.
+
 ### Batch predictions
 
-The API provides an authenticated CSV batch endpoint:
+The API provides an authenticated CSV batch endpoint. It accepts a raw loans
+CSV and loads the borrower and branch features from the database using
+`borrower_id` and `branch_id`:
 
 ```text
 POST /predict/batch
 ```
 
-The CSV must contain one row per application and these columns:
+The raw loans CSV must contain these columns:
+
+```text
+loan_id,borrower_id,branch_id,disbursed_on,product,channel,amount_xaf,
+term_months,monthly_rate_pct,declared_income_xaf,collateral
+```
+
+Extra columns such as `officer_id` and `defaulted` are ignored. The service
+calculates `loan_to_income_ratio` and `branch_age_years`, and adds borrower
+fields (`age`, `sex`, `sector`, `household_size`, `years_in_business`,
+`has_bank_account`, `prior_loans`) and branch fields (`region`, `staff_count`).
+
+The endpoint also accepts a prepared CSV containing the 18 model features:
 
 ```text
 amount_xaf,term_months,monthly_rate_pct,declared_income_xaf,
@@ -86,6 +110,9 @@ loan_to_income_ratio,age,household_size,years_in_business,prior_loans,
 branch_age_years,staff_count,product,channel,collateral,sex,sector,
 has_bank_account,region
 ```
+
+Rows with an unknown borrower or branch, missing columns, invalid categories,
+or invalid numeric values return `422` with the row number and offending field.
 
 Example request from PowerShell:
 
@@ -110,6 +137,17 @@ Run it manually across the repository with:
 
 ```bash
 uv run pre-commit run --all-files
+```
+
+### Continuous integration
+
+The CI workflow installs dependencies from `uv.lock` with Python 3.12 and
+runs Ruff, Black, and mypy. Pytest is temporarily disabled until the missing
+`src/data/clean.py` module is restored; the tests remain in `tests/` and can
+be run locally with:
+
+```bash
+uv run --extra dev pytest tests/ -v
 ```
 
 
