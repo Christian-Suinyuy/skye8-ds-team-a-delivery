@@ -50,8 +50,9 @@ def get_prediction(features: PredictionRequest) -> PredictionResponse:
 async def predict_batch(
     file: UploadFile = File(...),  # noqa: B008
     _: str = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
 ) -> BatchPredictionResponse:
     try:
-        return predict_batch_csv(await file.read(), file.content_type)
+        return predict_batch_csv(await file.read(), file.content_type, db)
     except BatchPredictionError as error:
         raise HTTPException(status_code=error.status_code, detail=error.detail) from error
