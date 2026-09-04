@@ -1,25 +1,19 @@
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from api.schema.user_schema import UserSignUp, UserLogin, AcessToken
-
-from fastapi import status, HTTPException
 
 from api.config.models.user import User
-from api.utils.jwt_util import create_access_token
+from api.schema.user_schema import UserLogin, UserSignUp
 from api.utils.bcrypt import hash_password, verify_password
+from api.utils.jwt_util import create_access_token
 
-def handles_signUp(
-        data: UserSignUp,
-        db: Session
-    ) -> str:
+
+def handles_signUp(data: UserSignUp, db: Session) -> str:
     hashed_password = hash_password(data.password)
     try:
         duplicate = db.query(User).filter(User.email == data.email).first()
         if duplicate:
             return "User with this email already exists"
-        user = User(
-            email=data.email,
-            password_hashed=hashed_password
-        )
+        user = User(email=data.email, password_hashed=hashed_password)
 
         db.add(user)
         db.commit()
@@ -29,10 +23,8 @@ def handles_signUp(
         db.rollback()
         raise e
 
-def handle_login(
-        credenetials: UserLogin,
-        db: Session
-):
+
+def handle_login(credenetials: UserLogin, db: Session):
     response = db.query(User).filter(User.email == credenetials.email).first()
     # print(response.password_hashed)
     if verify_password(credenetials.password, response.password_hashed):

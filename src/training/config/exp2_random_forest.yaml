@@ -1,0 +1,23 @@
+experiment_name: "skye8-credit-risk"
+run_name: "random-forest-balanced"
+model_registry_name: "skye8-credit-risk-model"
+
+data:
+  train_path: "data/raw/loans_train.csv"
+  borrowers_path: "data/raw/borrowers.csv"
+  branches_path: "data/raw/branches.csv"
+
+split:
+  holdout_fraction: 0.2
+  random_state: 42
+  stratify: true
+
+model:
+  type: "random_forest"
+  params:
+    n_estimators: 300
+    max_depth: 8
+    min_samples_leaf: 20
+    class_weight: "balanced"
+
+random_state: 42
