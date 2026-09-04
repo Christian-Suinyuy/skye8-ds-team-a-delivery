@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: Ruff
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+        pass_filenames: true
+      - id: black
+        name: Black
+        entry: uv run black
+        language: system
+        types: [python]
+        pass_filenames: true

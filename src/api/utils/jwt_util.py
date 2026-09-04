@@ -1,7 +1,8 @@
-import jwt
-from datetime import datetime, timezone , timedelta
-import dotenv
 import os
+from datetime import UTC, datetime, timedelta
+
+import dotenv
+import jwt
 
 dotenv.load_dotenv()
 secret_key = os.getenv("JWT_SECRET_KEY")
@@ -9,11 +10,11 @@ algorithm = os.getenv("JWT_ALGORITHM")
 
 
 def create_access_token(user_id: str) -> str:
-    expires = datetime.now(timezone.utc) + timedelta(minutes = 30)
+    if not secret_key or not algorithm:
+        raise RuntimeError("JWT_SECRET_KEY and JWT_ALGORITHM must be configured")
 
-    payload = {
-        "sub": user_id,
-        "exp": expires
-    }
+    expires = datetime.now(UTC) + timedelta(minutes=30)
 
-    return jwt.encode(payload, secret_key, algorithm = algorithm)
+    payload = {"sub": user_id, "exp": expires}
+
+    return jwt.encode(payload, secret_key, algorithm=algorithm)
