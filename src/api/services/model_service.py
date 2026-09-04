@@ -5,13 +5,13 @@ import mlflow.sklearn
 import pandas as pd
 from fastapi import status
 from mlflow.tracking import MlflowClient
-from pydantic import ValidationError
 
 from api.schema.model import (
     BatchPredictionResponse,
     PredictionRequest,
     PredictionResponse,
 )
+from api.utils.prediction_data import PredictionDataError, prepare_prediction_dataframe
 
 MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
 MODEL_NAME = "skye8-credit-risk-model"
@@ -73,20 +73,20 @@ def predict_batch_csv(contents: bytes, content_type: str | None) -> BatchPredict
     if frame.empty:
         raise BatchPredictionError("file must contain at least one data row")
 
-    required_fields = set(PredictionRequest.model_fields)
-    missing_fields = sorted(required_fields - set(frame.columns))
-    if missing_fields:
-        raise BatchPredictionError({"missing_fields": missing_fields})
+    try:
+        prepared = prepare_prediction_dataframe(frame)
+    except PredictionDataError as error:
+        raise BatchPredictionError(error.detail) from error
 
-    features = []
-    validation_errors = []
-    for row_number, record in enumerate(frame.to_dict(orient="records"), start=2):
-        try:
-            features.append(PredictionRequest.model_validate(record))
-        except ValidationError as error:
-            validation_errors.append({"row": row_number, "errors": error.errors()})
-
-    if validation_errors:
-        raise BatchPredictionError(validation_errors)
-
-    return BatchPredictionResponse(predictions=get_batch_predictions(features))
+    probabilities = model.predict_proba(prepared)[:, 1]
+    predictions = [
+        PredictionResponse(
+            probability_of_default=float(probability),
+            decision="review" if probability < 0.5 else "decline",
+            model_version=str(model_version.version),
+            model_stage=model_version.current_stage,
+            model_name=MODEL_NAME,
+        )
+        for probability in probabilities
+    ]
+    return BatchPredictionResponse(predictions=predictions)
