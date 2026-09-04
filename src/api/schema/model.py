@@ -10,21 +10,35 @@ class PredictionRequest(BaseModel):
     declared_income_xaf: float = Field(gt=0)
     loan_to_income_ratio: float
     age: int
-    household_size: int
+    household_size: int = Field(ge=1, le=12)
     years_in_business: float
-    prior_loans: int
+    prior_loans: int = Field(ge=0)
     branch_age_years: int
     staff_count: int
     product: Literal[
+        "digital nano",
         "asset finance",
         "group solidarity",
         "individual micro",
         "working capital",
     ]
-    channel: str
-    collateral: str
-    sex: str
-    sector: str
+    channel: Literal["mobile", "field agent", "branch"]
+    collateral: Literal["land title", "equipment", "group guarantee", "none"]
+    sex: Literal["M", "F"]
+    sector: Literal[
+        "farming",
+        "tailoring",
+        "retail shop",
+        "teaching",
+        "food vending",
+        "petty trade",
+        "hairdressing",
+        "transport",
+        "carpentry",
+        "poultry",
+        "masonry",
+        "phone repair",
+    ]
     has_bank_account: bool
     region: str
 
