@@ -48,6 +48,20 @@ uv run dev
 The server listens on `http://127.0.0.1:8005` and provides interactive API
 documentation at `http://127.0.0.1:8005/docs`.
 
+The authenticated `GET /` health endpoint reports the loaded model metadata:
+
+```json
+{
+  "message": "server is running. Everything is Good",
+  "model": {
+    "model_name": "skye8-credit-risk-model",
+    "model_version": "3",
+    "model_stage": "Production",
+    "model_alias": "production"
+  }
+}
+```
+
 ## Single prediction
 
 `POST /api/v1/predict` requires a bearer token and a JSON body containing the

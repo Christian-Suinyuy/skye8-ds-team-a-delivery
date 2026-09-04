@@ -7,6 +7,8 @@ from uuid import uuid4
 
 from fastapi import Request
 
+from api.utils.model_registry import get_loaded_model_details
+
 logger = logging.getLogger("api.requests")
 logger.setLevel(logging.INFO)
 logger.propagate = False
@@ -21,6 +23,7 @@ async def request_logger(request: Request, call_next):
     started_at = datetime.now(UTC)
     start_time = time.perf_counter()
 
+    model_details = get_loaded_model_details()
     try:
         response = await call_next(request)
     except Exception:
@@ -33,6 +36,7 @@ async def request_logger(request: Request, call_next):
                     "method": request.method,
                     "path": request.url.path,
                     "duration_ms": round((time.perf_counter() - start_time) * 1000, 2),
+                    "model": model_details,
                 },
                 sort_keys=True,
             ),
@@ -47,6 +51,7 @@ async def request_logger(request: Request, call_next):
         "path": request.url.path,
         "status_code": response.status_code,
         "duration_ms": duration_ms,
+        "model": model_details,
     }
 
     if response.status_code >= 400:

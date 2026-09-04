@@ -15,6 +15,7 @@ from api.services.model_service import (
 )
 from api.services.user_service import handle_login, handles_signUp
 from api.utils.load_models import load_models
+from api.utils.model_registry import get_loaded_model_details
 
 app = FastAPI()
 
@@ -38,7 +39,10 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):  # noqa: B008
 
 @app.get("/", dependencies=[Depends(get_current_user)])
 def health():
-    return {"message": "server is runnig. Everything is Good"}
+    return {
+        "message": "server is running. Everything is Good",
+        "model": get_loaded_model_details(),
+    }
 
 
 @app.post("/api/v1/predict", dependencies=[Depends(get_current_user)])

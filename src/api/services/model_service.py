@@ -4,7 +4,6 @@ import mlflow
 import mlflow.sklearn
 import pandas as pd
 from fastapi import status
-from mlflow.tracking import MlflowClient
 from sqlalchemy.orm import Session
 
 from api.schema.model import (
@@ -12,16 +11,12 @@ from api.schema.model import (
     PredictionRequest,
     PredictionResponse,
 )
+from api.utils.model_registry import get_loaded_model_details
 from api.utils.prediction_data import PredictionDataError, prepare_prediction_dataframe
-
-MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
-MODEL_NAME = "skye8-credit-risk-model"
 
 # Resolve the production alias once when the service starts so every response
 # identifies the exact model version used for that process.
-mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-client = MlflowClient()
-model_version = client.get_model_version_by_alias(MODEL_NAME, "production")
+model_details = get_loaded_model_details()
 model = mlflow.sklearn.load_model("mlruns/1/models/m-777ba5a7a77e420d9aa99cb2a75ce742/artifacts")
 
 
@@ -42,9 +37,9 @@ def get_prediction(features: PredictionRequest) -> PredictionResponse:
     return PredictionResponse(
         probability_of_default=probability,
         decision="review" if probability < 0.5 else "decline",
-        model_version=str(model_version.version),
-        model_stage=model_version.current_stage,
-        model_name=MODEL_NAME,
+        model_version=model_details["model_version"],
+        model_stage=model_details["model_stage"],
+        model_name=model_details["model_name"],
     )
 
 
@@ -58,9 +53,9 @@ def get_batch_predictions(features: list[PredictionRequest]) -> list[PredictionR
         PredictionResponse(
             probability_of_default=float(probability),
             decision="review" if probability < 0.5 else "decline",
-            model_version=str(model_version.version),
-            model_stage=model_version.current_stage,
-            model_name=MODEL_NAME,
+            model_version=model_details["model_version"],
+            model_stage=model_details["model_stage"],
+            model_name=model_details["model_name"],
         )
         for probability in probabilities
     ]
@@ -100,9 +95,9 @@ def predict_batch_csv(
         PredictionResponse(
             probability_of_default=float(probability),
             decision="review" if probability < 0.5 else "decline",
-            model_version=str(model_version.version),
-            model_stage=model_version.current_stage,
-            model_name=MODEL_NAME,
+            model_version=model_details["model_version"],
+            model_stage=model_details["model_stage"],
+            model_name=model_details["model_name"],
         )
         for probability in probabilities
     ]
