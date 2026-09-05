@@ -53,9 +53,6 @@ def calculate_psi(
     reference_dist = reference_dist.clip(lower=0.0001)
     current_dist = current_dist.clip(lower=0.0001)
 
-    psi = (
-        (current_dist - reference_dist)
-        * np.log(current_dist / reference_dist)
-    ).sum()
+    psi = ((current_dist - reference_dist) * np.log(current_dist / reference_dist)).sum()
 
     return float(psi)

@@ -19,6 +19,7 @@ from api.utils.prediction_data import PredictionDataError, prepare_prediction_da
 model_details = get_loaded_model_details()
 model = model = mlflow.sklearn.load_model("models/production")
 
+
 class BatchPredictionError(Exception):
     """Service-level error containing an HTTP status and client-safe detail."""
 

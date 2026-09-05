@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from typing import Sequence
+from collections.abc import Sequence
 
 
 def prediction_distribution(
@@ -13,7 +13,4 @@ def prediction_distribution(
     counts = Counter(predictions)
     total = len(predictions)
 
-    return {
-        label: count / total
-        for label, count in counts.items()
-    }
+    return {label: count / total for label, count in counts.items()}

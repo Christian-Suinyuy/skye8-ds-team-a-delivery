@@ -12,8 +12,5 @@ def check_data_quality(df: pd.DataFrame) -> dict[str, Any]:
         "columns": len(df.columns),
         "missing_values": df.isna().sum().to_dict(),
         "duplicate_rows": int(df.duplicated().sum()),
-        "dtypes": {
-            column: str(dtype)
-            for column, dtype in df.dtypes.items()
-        },
+        "dtypes": {column: str(dtype) for column, dtype in df.dtypes.items()},
     }

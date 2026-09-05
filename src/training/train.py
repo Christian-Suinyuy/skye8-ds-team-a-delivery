@@ -36,8 +36,8 @@ from sklearn.metrics import (
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from src.data.clean import clean_borrowers, clean_loans
 
+from src.data.clean import clean_borrowers, clean_loans
 from src.features.build_features import CATEGORICAL_FEATURES, NUMERIC_FEATURES, build_feature_frame
 
 MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"

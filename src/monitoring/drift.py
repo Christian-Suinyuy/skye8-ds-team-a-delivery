@@ -15,9 +15,8 @@ def calculate_feature_drift(
 
     for column in common_columns:
         # Numeric features use the standard PSI calculation.
-        if (
-            pd.api.types.is_numeric_dtype(reference[column])
-            and pd.api.types.is_numeric_dtype(current[column])
+        if pd.api.types.is_numeric_dtype(reference[column]) and pd.api.types.is_numeric_dtype(
+            current[column]
         ):
             psi = calculate_psi(reference[column], current[column])
 
@@ -38,13 +37,7 @@ def calculate_feature_drift(
             {
                 "feature": column,
                 "psi": psi,
-                "severity": (
-                    "stable"
-                    if psi < 0.10
-                    else "moderate"
-                    if psi <= 0.25
-                    else "severe"
-                ),
+                "severity": ("stable" if psi < 0.10 else "moderate" if psi <= 0.25 else "severe"),
             }
         )
 
