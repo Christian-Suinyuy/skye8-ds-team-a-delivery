@@ -1,0 +1,25 @@
+branch_id,branch_name,region,opened_year,staff_count
+BR-01,Bamenda Central,Mezam,2019,14
+BR-02,Nkwen,Mezam,2021,10
+BR-03,Mankon,Mezam,2009,13
+BR-04,Bafut,Mezam,2021,20
+BR-05,Bali,Mezam,2021,22
+BR-06,Kumbo,Bui,2015,21
+BR-07,Jakiri,Bui,2023,21
+BR-08,Ndop,Ngo-Ketunjia,2021,7
+BR-09,Wum,Menchum,2017,16
+BR-10,Fundong,Boyo,2019,22
+BR-11,Mbengwi,Momo,2021,8
+BR-12,Batibo,Momo,2015,8
+BR-13,Nkambe,Donga-Mantung,2021,19
+BR-14,Ndu,Donga-Mantung,2021,9
+BR-15,Douala Akwa,Littoral,2023,14
+BR-16,Douala Bonaberi,Littoral,2019,10
+BR-17,Yaounde Mvog-Ada,Centre,2017,7
+BR-18,Yaounde Mokolo,Centre,2019,10
+BR-19,Bafoussam,West,2012,18
+BR-20,Dschang,West,2021,19
+BR-21,Buea,South-West,2019,5
+BR-22,Limbe,South-West,2021,15
+BR-23,Kribi,South,2015,9
+BR-24,Garoua,North,2009,10

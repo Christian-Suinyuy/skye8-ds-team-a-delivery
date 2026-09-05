@@ -17,8 +17,7 @@ from api.utils.prediction_data import PredictionDataError, prepare_prediction_da
 # Resolve the production alias once when the service starts so every response
 # identifies the exact model version used for that process.
 model_details = get_loaded_model_details()
-model = mlflow.sklearn.load_model("mlruns/1/models/m-777ba5a7a77e420d9aa99cb2a75ce742/artifacts")
-
+model = model = mlflow.sklearn.load_model("models/production")
 
 class BatchPredictionError(Exception):
     """Service-level error containing an HTTP status and client-safe detail."""
